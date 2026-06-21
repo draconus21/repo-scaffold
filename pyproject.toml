@@ -1,0 +1,69 @@
+[build-system]
+  build-backend = "hatchling.build"
+  requires      = [ "hatchling" ]
+
+[project]
+  authors         = [ { name = "PROJECT_AUTHOR", email = "PROJECT_EMAIL" } ]
+  dependencies    = []
+  description     = "PROJECT_DESCRIPTION"
+  name            = "PROJECT_NAME"
+  readme          = "README.md"
+  requires-python = ">=3.10"
+  version         = "0.0.1"
+
+[dependency-groups]
+  dev = [
+    "pytest",
+    "ruff",
+    "pyrefly",
+    "pre-commit>=4.6.0",
+  ]
+
+[tool.hatch.build.targets.wheel]
+  packages = [ "src/project_package" ]
+
+[tool.pytest.ini_options]
+  addopts   = "--capture=sys"
+  testpaths = [ "src" ]
+
+[tool.ruff]
+  exclude        = [ ".git", ".venv", "build", "dist" ]
+  line-length    = 120
+  target-version = "py310"
+
+[tool.ruff.lint]
+  # E501 (line too long) is owned by the formatter, which wraps what it can; the rest
+  # (URLs, long strings) would just be noise.
+  ignore = ["E501"]
+  # ruff selects E + F by default. The rest tighten things up:
+  extend-select = [
+    "W",    # pycodestyle warnings
+    "I",    # isort — import sorting and grouping
+    "N",    # pep8-naming — snake_case / PascalCase / ALL_CAPS (see styleguide.md)
+    "UP",   # pyupgrade — modernize to py310 idioms (builtin generics, X | None, f-strings)
+    "B",    # flake8-bugbear — likely bugs (mutable defaults, zip without strict, etc.)
+    "A",    # flake8-builtins — don't shadow builtins
+    "C4",   # flake8-comprehensions — cleaner comprehensions
+    "SIM",  # flake8-simplify — collapse redundant constructs
+    "PIE",  # misc lint (drop unnecessary placeholders / duplicate dict keys)
+    "PTH",  # flake8-use-pathlib — prefer pathlib over os.path
+    "RET",  # flake8-return — consistent return statements
+    "ARG",  # flake8-unused-arguments
+    "TID",  # flake8-tidy-imports
+    "RUF",  # ruff-specific rules
+  ]
+
+[tool.ruff.lint.isort]
+  # Imports are grouped stdlib / third-party / first-party (isort default); this names
+  # the first-party package so it sorts into its own group.
+  known-first-party = ["project_package"]
+
+[tool.pyrefly]
+  project-includes = [
+      "**/*.py*",
+      "**/*.ipynb",
+  ]
+  project-excludes = [
+      "**/.[!/]*",
+      "**/*venv*/**",
+  ]

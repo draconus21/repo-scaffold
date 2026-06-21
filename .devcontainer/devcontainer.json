@@ -1,0 +1,54 @@
+// For format details, see https://aka.ms/devcontainer.json.
+{
+	"name": "PROJECT_NAME",
+	// Built from .devcontainer/Dockerfile: a minimal Ubuntu base with uv + a managed
+	// Python baked into a cached image layer. Add any project-specific system libraries
+	// to the Dockerfile (see the note there).
+	"build": {
+		"dockerfile": "Dockerfile"
+	},
+	// uv's cache and the in-workspace .venv live on different filesystems
+	// (overlay vs. bind mount), so hardlinking fails; copy instead.
+	"containerEnv": {
+		"UV_LINK_MODE": "copy"
+	},
+	"features": {
+		// Installs zsh + oh-my-zsh and sets zsh as the default shell.
+		"ghcr.io/devcontainers/features/common-utils:2": {
+			"installZsh": true,
+			"installOhMyZsh": true,
+			"configureZshAsDefaultShell": true,
+			"username": "vscode"
+		},
+		"ghcr.io/devcontainers/features/git:1": {},
+		"ghcr.io/devcontainers-extra/features/zsh-plugins:0": {
+			"plugins": "git docker colored-man-pages zsh-autosuggestions zsh-syntax-highlighting",
+			"omzPlugins": "https://github.com/zsh-users/zsh-autosuggestions https://github.com/zsh-users/zsh-syntax-highlighting"
+		}
+	},
+	"mounts": [
+		// Share the host SSH keys so git over SSH works in the container.
+		"source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,type=bind,readonly,consistency=cached",
+		// Persist ~/.claude and ~/.claude.json across rebuilds so Claude stays
+		// authenticated and keeps its per-project history/config. Keyed to the
+		// workspace location, so separate clones get separate state.
+		"source=${localWorkspaceFolder}/.devcontainer/.claude-home,target=/home/vscode/.claude,type=bind,consistency=cached",
+		"source=${localWorkspaceFolder}/.devcontainer/.claude.json,target=/home/vscode/.claude.json,type=bind,consistency=cached"
+	],
+	// Runs on the HOST before the container is created: create the bind sources so
+	// they're owned by the host user (an absent bind source is auto-created as root),
+	// and seed .claude.json with valid JSON only when missing/empty.
+	"initializeCommand": "mkdir -p ${localWorkspaceFolder}/.devcontainer/.claude-home && { [ -s ${localWorkspaceFolder}/.devcontainer/.claude.json ] || echo '{}' > ${localWorkspaceFolder}/.devcontainer/.claude.json; }",
+	"postCreateCommand": "bash .devcontainer/post-create.sh",
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-python.python",
+				"charliermarsh.ruff",
+				"meta.pyrefly",
+				"tamasfe.even-better-toml",
+				"Anthropic.claude-code"
+			]
+		}
+	}
+}
