@@ -43,7 +43,10 @@ subst() {  # subst <placeholder> <value>
   local token="$1" value="$2"
   grep -rIl --exclude-dir=.git -e "$token" . 2>/dev/null | while read -r f; do
     [ -L "$f" ] && continue   # never rewrite symlinks (CLAUDE.md, .claude)
-    sed -i "s|$token|$value|g" "$f"
+    # Portable in-place edit: BSD/macOS sed -i needs a backup-suffix arg and GNU
+    # sed does not, so route through a temp file instead of using -i at all.
+    tmp="$(mktemp)"
+    sed "s|$token|$value|g" "$f" >"$tmp" && mv "$tmp" "$f"
   done
 }
 subst PROJECT_DESCRIPTION "$PROJECT_DESCRIPTION"
