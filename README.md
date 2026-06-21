@@ -17,14 +17,15 @@
   assumptions; add project-specific system libraries in the `Dockerfile`.
 - **Python tooling** — `pyproject.toml` (hatchling + `uv` dev group), `ruff` + `pyrefly`
   config, and a `.pre-commit-config.yaml` wiring both through `uv run`.
-- **CI** — `.gitlab-ci.yml` runs `ruff` lint + format-check and `pyrefly` type-check on
-  the same `uv` image as the devcontainer. (On GitHub, swap in an equivalent workflow.)
+- **CI** — `.github/workflows/ci.yml` runs `ruff` lint + format-check and `pyrefly`
+  type-check on the same `uv` toolchain as the devcontainer, on every push to `main` and
+  every pull request.
 
 ## Using it
 
-1. **Create your repo from this template** — on GitHub use *Use this template*; on
-   GitLab fork or create from it (Settings → General → Project templates, or just clone
-   and re-point the remote).
+1. **Create your repo from this template** — on GitHub click *Use this template* (mark
+   this repo as a template under Settings → General first), or `gh repo create
+   <name> --template <owner>/<this-repo> --clone`.
 2. **Initialize** — fill in the project name, package, etc.:
    ```bash
    bash scripts/init-template.sh
